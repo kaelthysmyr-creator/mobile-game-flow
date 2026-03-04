@@ -1578,6 +1578,42 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('🚀 All systems enhanced and loaded!');
+
+/* ══════ BAIT BAR FIX: Hide satchel strip during encounters ══════ */
+(function fixSatchelDuringEncounters() {
+  function setupObserver() {
+    const huntFrame = document.getElementById('fr-0');
+    if (!huntFrame) { setTimeout(setupObserver, 1000); return; }
+    
+    function tryAttach() {
+      try {
+        const doc = huntFrame.contentDocument || huntFrame.contentWindow.document;
+        const encWrap = doc.getElementById('hunt-encounter');
+        const satchel = doc.getElementById('satchel-strip');
+        
+        if (!encWrap || !satchel) { setTimeout(tryAttach, 2000); return; }
+        
+        // Use MutationObserver to watch encounter display changes
+        const observer = new MutationObserver(() => {
+          const isEncounterVisible = encWrap.style.display !== 'none' && encWrap.style.display !== '';
+          satchel.style.display = isEncounterVisible ? 'none' : 'flex';
+        });
+        
+        observer.observe(encWrap, { attributes: true, attributeFilter: ['style'] });
+        console.log('🎣 Satchel strip encounter fix attached');
+      } catch(e) {
+        setTimeout(tryAttach, 2000);
+      }
+    }
+    
+    huntFrame.addEventListener('load', () => setTimeout(tryAttach, 1000));
+    setTimeout(tryAttach, 3000);
+  }
+  
+  if (document.readyState === 'complete') setupObserver();
+  else window.addEventListener('load', setupObserver);
+})();
+
 </script>
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </body>
